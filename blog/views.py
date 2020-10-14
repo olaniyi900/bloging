@@ -1,31 +1,35 @@
 from django.shortcuts import render
+from django.views.generic import (
+                ListView, 
+                DetailView, 
+                CreateView)
 from .models import Post
 
-# Create your views here.
 
-
-# dummy data to test before database was created
-# posts = [
-#     {
-#         'author': 'Ola Ade',
-#         'title': 'Blog post 1',
-#         'content': 'First post',
-#         'date_posted': 'August 27, 2020'
-#     },
-
-#     {
-#         'author': 'Sandr Ade',
-#         'title': 'Blog post 2',
-#         'content': 'Second post',
-#         'date_posted': 'August 28, 2020'
-#     }
-# ] 
 
 def home(request):
     context = {
         'posts': Post.objects.all()
     }
     return render(request, 'blog/home.html', context)
+
+class PostListView(ListView):
+    model = Post
+    template_name='blog/home.html'
+    context_object_name = 'posts'
+    ordering = '-date_postted'
+
+class PostDetailView(DetailView):
+    model = Post
+
+class PostCreateView(CreateView):
+    model = Post
+    fields = ['title', 'content']
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+    
 
 
 def about(request):
